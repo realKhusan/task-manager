@@ -2,21 +2,25 @@ import { Task } from "@/types/task";
 
 export const statusConfig = {
   new: {
+    index: 1,
     color: "bg-blue-500",
     textColor: "text-blue-700",
     bgColor: "bg-blue-50",
   },
   pending: {
+    index: 2,
     color: "bg-yellow-500",
     textColor: "text-yellow-700",
     bgColor: "bg-yellow-50",
   },
   done: {
+    index: 3,
     color: "bg-green-500",
     textColor: "text-green-700",
     bgColor: "bg-green-50",
   },
   failed: {
+    index: 4,
     color: "bg-red-500",
     textColor: "text-red-700",
     bgColor: "bg-red-50",

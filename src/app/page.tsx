@@ -5,10 +5,11 @@ import { DragDropContext, type DropResult } from "@hello-pangea/dnd"
 import { Task, TaskStatus } from "@/types/task"
 import { TaskForm } from "@/components/task-form"
 import { SearchBar } from "@/components/search-bar"
-import { LanguageSelector } from "@/components/language-selector"
+import LanguageToggle from "@/components/language-selector"
 import { KanbanColumn } from "@/components/kanban-column"
 import { mockTasks } from "@/constants/task-status"
 import { useTranslations } from "next-intl"
+import { ModeToggle } from "@/components/theme-toggle"
 
 function Page() {
   const t = useTranslations();
@@ -73,12 +74,15 @@ function Page() {
     setTasks(newTasks)
   }
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
+    <div className="min-h-screen  p-4">
       <div className="max-w-full mx-auto">
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-3xl font-bold text-gray-900">{t("taskManager")}</h1>
-            <LanguageSelector />
+          <div className="flex items-center justify-between mb-5">
+            <h1 className="text-3xl font-bold ">{t("taskManager")}</h1>
+            <div className="flex gap-3">
+              <LanguageToggle />
+              <ModeToggle />
+            </div>
           </div>
           <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
             <SearchBar searchTerm={searchTerm} onSearchChange={setSearchTerm} />
@@ -87,7 +91,7 @@ function Page() {
         </div>
         <DragDropContext onDragEnd={handleDragEnd}>
           <div className="overflow-x-auto">
-            <div className="grid grid-cols-4 gap-6 min-w-[1200px]">
+            <div className="grid grid-cols-4 gap-6 min-w-[1200px] overflow-x-hidden">
               {(Object.keys(tasksByStatus) as TaskStatus[]).map((status) => (
                 <KanbanColumn
                   key={status}

@@ -3,9 +3,10 @@
 import { Badge } from "@/components/ui/badge"
 import { GripVertical } from "lucide-react"
 import { Droppable } from "@hello-pangea/dnd"
-import { type Task, type TaskStatus, statusConfig } from "../constants/task-status"
 import { TaskCard } from "./task-card"
 import { useTranslations } from "next-intl"
+import { Task, TaskStatus } from "@/types/task"
+import { statusConfig } from "@/constants/task-status"
 
 interface KanbanColumnProps {
   status: TaskStatus
@@ -13,27 +14,31 @@ interface KanbanColumnProps {
 }
 
 export function KanbanColumn({ status, tasks }: KanbanColumnProps) {
-  const { t } = useTranslations()
+  const t = useTranslations()
   const config = statusConfig[status]
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border">
-      <div className={`p-4 border-b ${config.bgColor}`}>
+    <div className=" shadow-sm  rounded-4xl border">
+      <div className={`p-4 border sticky bg-opacity-55  dark:backdrop-blur dark:backdrop-opacity-80 animation-duration-initial top-0 rounded-full ${config.bgColor}`}>
         <div className="flex items-center justify-between">
           <h3 className={`font-semibold ${config.textColor}`}>{t(status)}</h3>
-          <Badge variant="secondary" className={`${config.color} text-white`}>
-            {tasks.length}
-          </Badge>
+          <div className="relative">
+            <Badge variant="secondary" className={`${config.color} rounded-full absolute right-0 bottom-0 blur text-white`}>
+              {tasks.length}
+            </Badge>
+            <Badge variant="secondary" className={`${config.color} hover:!scale-105 cursor-pointer rounded-full text-white`}>
+              {tasks.length}
+            </Badge>
+          </div>
+
         </div>
       </div>
-
       <Droppable droppableId={status}>
-        {(provided, snapshot) => (
+        {(provided) => (
           <div
             ref={provided.innerRef}
             {...provided.droppableProps}
-            className={`p-4 min-h-[400px] transition-colors duration-200 ${snapshot.isDraggingOver ? "bg-gray-50" : ""
-              }`}
+            className={`p-4 min-h-[400px] transition-colors duration-200`}
           >
             {tasks.map((task, index) => (
               <TaskCard

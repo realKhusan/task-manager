@@ -13,18 +13,36 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { Edit, Trash2, MoveRight } from "lucide-react"
+import { Edit, Trash2, MoveRight, MoveLeft } from "lucide-react"
 import { Draggable } from "@hello-pangea/dnd"
-import { type Task, type TaskStatus, statusConfig } from "../constants/task-status"
+import { statusConfig } from "../constants/task-status"
 import { useTranslations } from "next-intl"
+import { Task, TaskStatus } from "@/types/task"
+import { usePathname, useRouter } from "next/navigation"
 
 interface TaskCardProps {
   task: Task
   index: number
 }
+const indexTask = (status: TaskStatus | string): number => {
+  switch (status) {
+    case "new":
+      return 1;
+    case "pending":
+      return 2;
+    case "done":
+      return 3;
+    case "failed":
+      return 4;
+    default:
+      return 1;
+  }
+}
 
 export function TaskCard({ task, index }: TaskCardProps) {
-  const { t } = useTranslations()
+  const router = useRouter()
+  const pathname = usePathname()
+  const t = useTranslations()
 
   return (
     <Draggable draggableId={task.id} index={index}>
@@ -34,7 +52,7 @@ export function TaskCard({ task, index }: TaskCardProps) {
           {...provided.draggableProps}
           {...provided.dragHandleProps}
           className={`
-            hover:shadow-md transition-shadow cursor-grab active:cursor-grabbing mb-3
+            hover:shadow-md transition-shadow cursor-grab rounded-4xl active:cursor-grabbing mb-3
             ${snapshot.isDragging ? "shadow-lg rotate-2 opacity-90" : ""}
           `}
         >
@@ -48,7 +66,6 @@ export function TaskCard({ task, index }: TaskCardProps) {
                   className="h-6 w-6"
                   onClick={(e) => {
                     e.stopPropagation()
-                    onEdit(task)
                   }}
                   title={t("edit")}
                 >
@@ -60,7 +77,10 @@ export function TaskCard({ task, index }: TaskCardProps) {
                       variant="ghost"
                       size="icon"
                       className="h-6 w-6 text-red-500 hover:text-red-700"
-                      onClick={(e) => e.stopPropagation()}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        router.push(`?delete=true&id=${task.id}`)
+                      }}
                       title={t("delete")}
                     >
                       <Trash2 className="w-3 h-3" />
@@ -74,8 +94,8 @@ export function TaskCard({ task, index }: TaskCardProps) {
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                      <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
-                      <AlertDialogAction onClick={() => onDelete(task.id)} className="bg-red-500 hover:bg-red-600">
+                      <AlertDialogCancel onClick={() => { router.push(pathname) }}>{t("cancel")}</AlertDialogCancel>
+                      <AlertDialogAction className="bg-red-500 hover:bg-red-600">
                         {t("delete")}
                       </AlertDialogAction>
                     </AlertDialogFooter>
@@ -87,21 +107,20 @@ export function TaskCard({ task, index }: TaskCardProps) {
           <CardContent className="pt-0">
             {task.desc && <p className="text-xs text-gray-600 mb-3 line-clamp-3">{task.desc}</p>}
             <div className="flex flex-wrap gap-1">
-              {Object.entries(statusConfig).map(([newStatus, newConfig]) => {
+              {Object.entries(statusConfig).map(([newStatus]) => {
                 if (newStatus === task.status) return null
                 return (
                   <Button
                     key={newStatus}
                     variant="outline"
                     size="sm"
-                    className="text-xs h-6 px-2 flex items-center gap-1"
+                    className="text-xs h-6 px-2 flex rounded-full items-center gap-1"
                     onClick={(e) => {
                       e.stopPropagation()
-                      onStatusChange(task.id, newStatus as TaskStatus)
                     }}
                     title={`${t("moveTo")} ${t(newStatus as keyof typeof statusConfig)}`}
                   >
-                    <MoveRight className="w-3 h-3" />
+                    {indexTask(newStatus) > indexTask(task.status) ? <MoveRight className="w-3 h-3" /> : <MoveLeft className="w-3 h-3" />}
                     {t(newStatus as keyof typeof statusConfig)}
                   </Button>
                 )
