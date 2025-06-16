@@ -3,7 +3,7 @@
 import { useLocale } from 'next-intl';
 import { useTransition } from 'react';
 import Cookies from 'js-cookie';
-import { Languages, ChevronDown } from 'lucide-react';
+import { Languages } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger } from './ui/dropdown-menu';
 import { Button } from './ui/button';
 import { LanguageConfig } from '@/types/language';
