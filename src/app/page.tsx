@@ -13,13 +13,12 @@ import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
 import { useRouter } from "next/navigation"
 import DeleteAlert from "@/components/task-delete-alert"
-import { getTasks, saveTasks } from "@/lib/storage"
+import { useTaskStore } from "@/store/store"
 
 function Page() {
   const t = useTranslations();
   const router = useRouter()
-  const tasks = getTasks()
-
+  const tasks = useTaskStore((state) => state.tasks)
   const [searchTerm, setSearchTerm] = useState("")
   const filteredTasks = useMemo(() => {
     if (!searchTerm) return tasks
@@ -51,32 +50,13 @@ function Page() {
     const { destination, source, draggableId } = result
 
     if (!destination) return
-    if (destination.droppableId === source.droppableId && destination.index === source.index) return
+    if (
+      destination.droppableId === source.droppableId &&
+      destination.index === source.index
+    ) return
 
-    const destStatus = destination.droppableId as TaskStatus
-
-    const newTasks = Array.from(tasks)
-    const draggedTaskIndex = newTasks.findIndex((task) => task.id === draggableId)
-    const draggedTask = newTasks[draggedTaskIndex]
-
-    newTasks.splice(draggedTaskIndex, 1)
-    const updatedTask = { ...draggedTask, status: destStatus }
-    const destTasks = newTasks.filter((task) => task.status === destStatus)
-
-    const insertIndex = newTasks.findIndex((task) => {
-      if (task.status === destStatus) {
-        const destIndex = destTasks.findIndex((t) => t.id === task.id)
-        return destIndex >= destination.index
-      }
-      return false
-    })
-
-    if (insertIndex === -1) {
-      newTasks.push(updatedTask)
-    } else {
-      newTasks.splice(insertIndex, 0, updatedTask)
-    }
-    saveTasks(newTasks)
+    const moveTask = useTaskStore.getState().moveTask
+    moveTask(draggableId, destination.droppableId as TaskStatus)
   }
   return (
     <><div className="min-h-screen  p-4">

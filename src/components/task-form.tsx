@@ -18,17 +18,9 @@ import { useEffect } from "react"
 import { useTranslations } from "next-intl"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { TaskStatus } from "@/types/task"
-import { getTaskById, getTasks, saveTasks } from "@/lib/storage"
 import { v4 as uuidv4 } from "uuid"
 import { statusConfig } from "@/constants/task-status"
-
-const FormSchema = z.object({
-  title: z.string().min(1),
-  desc: z.string().min(1),
-  status: z.enum(["new", "pending", "done", "failed"]),
-})
-
-type FormData = z.infer<typeof FormSchema>
+import { useTaskStore } from "@/store/store"
 
 export function TaskForm() {
   const t = useTranslations()
@@ -39,11 +31,23 @@ export function TaskForm() {
   const isEdit = searchParams.has("edit")
   const taskId = searchParams.get("id")
 
+  const FormSchema = z.object({
+    title: z.string().min(1, t("errorTitle")),
+    desc: z.string().min(1, t("errorDesc")),
+    status: z.enum(["new", "pending", "done", "failed"]),
+  })
+  type FormData = z.infer<typeof FormSchema>
+
+  const addTask = useTaskStore((state) => state.addTask)
+  const updateTask = useTaskStore((state) => state.updateTask)
+  const getTaskById = useTaskStore((state) => state.getTaskById)
+
   const {
     register,
     handleSubmit,
     reset,
     setValue,
+    watch,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(FormSchema),
@@ -55,7 +59,14 @@ export function TaskForm() {
   })
 
   useEffect(() => {
-    if (isEdit && taskId) {
+    if (isAdd) {
+      reset({
+        title: "",
+        desc: "",
+        status: "new",
+      })
+    }
+    else if (isEdit && taskId) {
       const task = getTaskById(taskId)
       if (task) {
         reset({
@@ -65,29 +76,23 @@ export function TaskForm() {
         })
       }
     }
-  }, [isEdit, taskId, reset])
+
+  }, [isEdit, taskId, reset, getTaskById, isAdd])
 
   const closeDialog = () => {
     router.push(pathname)
   }
 
   const onSubmit = (data: FormData) => {
-    const tasks = getTasks()
-
     if (isEdit && taskId) {
-      const updated = tasks.map(task =>
-        task.id === taskId ? { ...task, ...data } : task
-      )
-      saveTasks(updated)
+      updateTask(taskId, data)
     } else {
-      const newTask = {
+      addTask({
         id: uuidv4(),
         createdAt: new Date(),
         ...data,
-      }
-      saveTasks([...tasks, newTask])
+      })
     }
-
     closeDialog()
   }
 
@@ -115,11 +120,13 @@ export function TaskForm() {
           <div>
             <Label htmlFor="status">{t("status")}</Label>
             <Select
-              value={undefined}
-              onValueChange={(value: TaskStatus) => setValue("status", value, { shouldValidate: true })}
+              value={watch("status")}
+              onValueChange={(value: TaskStatus) =>
+                setValue("status", value, { shouldValidate: true })
+              }
             >
               <SelectTrigger>
-                <SelectValue />
+                <SelectValue placeholder={t("status")} />
               </SelectTrigger>
               <SelectContent>
                 {Object.keys(statusConfig).map((key) => (

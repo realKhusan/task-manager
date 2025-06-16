@@ -23,5 +23,7 @@
   "deleteConfirm": "Haqiqatan ham bu taskini o'chirmoqchimisiz? Bu amalni bekor qilib bo'lmaydi.",
   "noTasks": "Hozircha tasklar yo'q",
   "dragHere": "Taskni bu yerga sudrab oling",
-  "language": "Til"
+  "language": "Til",
+  "errorTitle": "Sarlavha majburiy",
+  "errorDesc": "Tavsif majburiy"
 }
