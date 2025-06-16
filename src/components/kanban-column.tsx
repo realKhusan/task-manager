@@ -30,7 +30,6 @@ export function KanbanColumn({ status, tasks }: KanbanColumnProps) {
               {tasks.length}
             </Badge>
           </div>
-
         </div>
       </div>
       <Droppable droppableId={status}>
@@ -48,7 +47,6 @@ export function KanbanColumn({ status, tasks }: KanbanColumnProps) {
               />
             ))}
             {provided.placeholder}
-
             {tasks.length === 0 && (
               <div className="text-center text-gray-400 py-8">
                 <GripVertical className="w-8 h-8 mx-auto mb-2 opacity-50" />

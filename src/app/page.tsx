@@ -58,6 +58,9 @@ function Page() {
     const moveTask = useTaskStore.getState().moveTask
     moveTask(draggableId, destination.droppableId as TaskStatus)
   }
+  if (tasks.length == 0) {
+    return "loading"
+  }
   return (
     <><div className="min-h-screen  p-4">
       <div className="max-w-full mx-auto">
@@ -69,11 +72,11 @@ function Page() {
               <ModeToggle />
             </div>
           </div>
-          <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
+          <div className="flex flex-row gap-3 items-center justify-between">
             <SearchBar searchTerm={searchTerm} onSearchChange={setSearchTerm} />
-            <Button size={"lg"} className="rounded-full  hover:!bg-indigo-700 !bg-indigo-600 dark:text-slate-50" onClick={() => { router.push("?add=true") }}>
-              <Plus className="w-4 h-4 mr-2" />
-              {t("newTask")}
+            <Button size={"lg"} className="rounded-full !px-3  hover:!bg-indigo-700 !bg-indigo-600 dark:text-slate-50" onClick={() => { router.push("?add=true") }}>
+              <Plus className="w-4 h-4 md:mr-2" />
+              <span className="hidden sm:block">{t("newTask")}</span>
             </Button>
           </div>
         </div>

@@ -8,6 +8,7 @@ import { statusConfig } from "../constants/task-status"
 import { useTranslations } from "next-intl"
 import { Task, TaskStatus } from "@/types/task"
 import { useRouter } from "next/navigation"
+import { useTaskStore } from "@/store/store"
 
 interface TaskCardProps {
   task: Task
@@ -31,6 +32,7 @@ const indexTask = (status: TaskStatus | string): number => {
 export function TaskCard({ task, index }: TaskCardProps) {
   const router = useRouter()
   const t = useTranslations()
+  const moveTask = useTaskStore(state => state.moveTask)
   return (
     <Draggable draggableId={task.id} index={index}>
       {(provided, snapshot) => (
@@ -87,6 +89,7 @@ export function TaskCard({ task, index }: TaskCardProps) {
                     className="text-xs h-6 px-2 flex rounded-full items-center gap-1"
                     onClick={(e) => {
                       e.stopPropagation()
+                      moveTask(task.id, newStatus as TaskStatus)
                     }}
                     title={`${t("moveTo")} ${t(newStatus as keyof typeof statusConfig)}`}
                   >

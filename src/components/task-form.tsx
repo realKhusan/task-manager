@@ -21,6 +21,7 @@ import { TaskStatus } from "@/types/task"
 import { v4 as uuidv4 } from "uuid"
 import { statusConfig } from "@/constants/task-status"
 import { useTaskStore } from "@/store/store"
+import { toast } from "sonner"
 
 export function TaskForm() {
   const t = useTranslations()
@@ -92,6 +93,7 @@ export function TaskForm() {
         ...data,
       })
     }
+    toast.success("Event has been created")
     closeDialog()
   }
 
