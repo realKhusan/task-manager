@@ -30,7 +30,6 @@ export function TaskForm() {
   const isAdd = searchParams.has("add")
   const isEdit = searchParams.has("edit")
   const taskId = searchParams.get("id")
-
   const FormSchema = z.object({
     title: z.string().min(1, t("errorTitle")),
     desc: z.string().min(1, t("errorDesc")),
@@ -138,7 +137,6 @@ export function TaskForm() {
             </Select>
             {errors.status && <p className="text-sm text-red-500">{errors.status.message}</p>}
           </div>
-
           <div className="flex gap-5 pt-4">
             <Button
               variant="outline"
