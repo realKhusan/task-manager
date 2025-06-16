@@ -1,79 +1,127 @@
 "use client"
 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Plus } from "lucide-react"
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { z } from "zod"
+import { useEffect } from "react"
 import { useTranslations } from "next-intl"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { useState } from "react"
 import { TaskStatus } from "@/types/task"
+import { getTaskById, getTasks, saveTasks } from "@/lib/storage"
+import { v4 as uuidv4 } from "uuid"
 import { statusConfig } from "@/constants/task-status"
+
+const FormSchema = z.object({
+  title: z.string().min(1),
+  desc: z.string().min(1),
+  status: z.enum(["new", "pending", "done", "failed"]),
+})
+
+type FormData = z.infer<typeof FormSchema>
+
 export function TaskForm() {
+  const t = useTranslations()
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const isAdd = searchParams.has("add")
   const isEdit = searchParams.has("edit")
   const taskId = searchParams.get("id")
-  const [formData, setFormData] = useState({
-    title: "",
-    desc: "",
-    status: "new" as TaskStatus,
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setValue,
+    formState: { errors },
+  } = useForm<FormData>({
+    resolver: zodResolver(FormSchema),
+    defaultValues: {
+      title: "",
+      desc: "",
+      status: "new",
+    },
   })
-  const t = useTranslations()
+
+  useEffect(() => {
+    if (isEdit && taskId) {
+      const task = getTaskById(taskId)
+      if (task) {
+        reset({
+          title: task.title,
+          desc: task.desc,
+          status: task.status,
+        })
+      }
+    }
+  }, [isEdit, taskId, reset])
 
   const closeDialog = () => {
     router.push(pathname)
   }
 
+  const onSubmit = (data: FormData) => {
+    const tasks = getTasks()
+
+    if (isEdit && taskId) {
+      const updated = tasks.map(task =>
+        task.id === taskId ? { ...task, ...data } : task
+      )
+      saveTasks(updated)
+    } else {
+      const newTask = {
+        id: uuidv4(),
+        createdAt: new Date(),
+        ...data,
+      }
+      saveTasks([...tasks, newTask])
+    }
+
+    closeDialog()
+  }
+
   return (
     <Dialog open={isAdd || isEdit} onOpenChange={closeDialog}>
-      <DialogTrigger asChild onClick={() => { router.push("?add=true") }}>
-        <Button size={"lg"} className="rounded-full !bg-indigo-600 dark:text-slate-50" onClick={() => router.push("?add=true")}>
-          <Plus className="w-4 h-4 mr-2" />
-          {t("newTask")}
-        </Button>
-      </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{isEdit ? t("editTask") : t("addTask")}</DialogTitle>
+          <DialogTitle>
+            {isEdit ? t("editTask") : t("addTask")}
+          </DialogTitle>
         </DialogHeader>
-        <div className="space-y-4 *:space-y-2">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 *:space-y-2">
           <div>
             <Label htmlFor="title">{t("title")}</Label>
-            <Input
-              id="title"
-              value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              placeholder={t("titlePlaceholder")}
-            />
+            <Input id="title" {...register("title")} placeholder={t("titlePlaceholder")} />
+            {errors.title && <p className="text-sm text-red-500">{errors.title.message}</p>}
           </div>
+
           <div>
             <Label htmlFor="desc">{t("description")}</Label>
-            <Textarea
-              id="desc"
-              value={formData.desc}
-              onChange={(e) => setFormData({ ...formData, desc: e.target.value })}
-              placeholder={t("descriptionPlaceholder")}
-              rows={3}
-            />
+            <Textarea id="desc" {...register("desc")} placeholder={t("descriptionPlaceholder")} rows={3} />
+            {errors.desc && <p className="text-sm text-red-500">{errors.desc.message}</p>}
           </div>
+
           <div>
             <Label htmlFor="status">{t("status")}</Label>
             <Select
-
-              value={formData.status}
-              onValueChange={(value: TaskStatus) => setFormData({ ...formData, status: value })}
+              value={undefined}
+              onValueChange={(value: TaskStatus) => setValue("status", value, { shouldValidate: true })}
             >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
-
-              <SelectContent >
+              <SelectContent>
                 {Object.keys(statusConfig).map((key) => (
                   <SelectItem key={key} value={key}>
                     {t(key as keyof typeof statusConfig)}
@@ -81,16 +129,24 @@ export function TaskForm() {
                 ))}
               </SelectContent>
             </Select>
+            {errors.status && <p className="text-sm text-red-500">{errors.status.message}</p>}
           </div>
-          <div className="flex gap-2 pt-4">
-            <Button variant="outline" className="flex-1">
+
+          <div className="flex gap-5 pt-4">
+            <Button
+              variant="outline"
+              size="lg"
+              className="flex-1 rounded-full"
+              onClick={closeDialog}
+              type="button"
+            >
               {t("cancel")}
             </Button>
-            <Button className="flex-1">
+            <Button type="submit" className="flex-1 rounded-full" size="lg">
               {isEdit ? t("save") : t("add")}
             </Button>
           </div>
-        </div>
+        </form>
       </DialogContent>
     </Dialog>
   )

@@ -7,13 +7,19 @@ import { TaskForm } from "@/components/task-form"
 import { SearchBar } from "@/components/search-bar"
 import LanguageToggle from "@/components/language-selector"
 import { KanbanColumn } from "@/components/kanban-column"
-import { mockTasks } from "@/constants/task-status"
 import { useTranslations } from "next-intl"
 import { ModeToggle } from "@/components/theme-toggle"
+import { Button } from "@/components/ui/button"
+import { Plus } from "lucide-react"
+import { useRouter } from "next/navigation"
+import DeleteAlert from "@/components/task-delete-alert"
+import { getTasks, saveTasks } from "@/lib/storage"
 
 function Page() {
   const t = useTranslations();
-  const [tasks, setTasks] = useState<Task[]>(mockTasks)
+  const router = useRouter()
+  const tasks = getTasks()
+
   const [searchTerm, setSearchTerm] = useState("")
   const filteredTasks = useMemo(() => {
     if (!searchTerm) return tasks
@@ -70,11 +76,10 @@ function Page() {
     } else {
       newTasks.splice(insertIndex, 0, updatedTask)
     }
-
-    setTasks(newTasks)
+    saveTasks(newTasks)
   }
   return (
-    <div className="min-h-screen  p-4">
+    <><div className="min-h-screen  p-4">
       <div className="max-w-full mx-auto">
         <div className="mb-8">
           <div className="flex items-center justify-between mb-5">
@@ -86,7 +91,10 @@ function Page() {
           </div>
           <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
             <SearchBar searchTerm={searchTerm} onSearchChange={setSearchTerm} />
-            <TaskForm />
+            <Button size={"lg"} className="rounded-full  hover:!bg-indigo-700 !bg-indigo-600 dark:text-slate-50" onClick={() => { router.push("?add=true") }}>
+              <Plus className="w-4 h-4 mr-2" />
+              {t("newTask")}
+            </Button>
           </div>
         </div>
         <DragDropContext onDragEnd={handleDragEnd}>
@@ -104,6 +112,9 @@ function Page() {
         </DragDropContext>
       </div>
     </div>
+      <TaskForm />
+      <DeleteAlert />
+    </>
   )
 }
 

@@ -2,23 +2,12 @@
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
 import { Edit, Trash2, MoveRight, MoveLeft } from "lucide-react"
 import { Draggable } from "@hello-pangea/dnd"
 import { statusConfig } from "../constants/task-status"
 import { useTranslations } from "next-intl"
 import { Task, TaskStatus } from "@/types/task"
-import { usePathname, useRouter } from "next/navigation"
+import { useRouter } from "next/navigation"
 
 interface TaskCardProps {
   task: Task
@@ -41,9 +30,7 @@ const indexTask = (status: TaskStatus | string): number => {
 
 export function TaskCard({ task, index }: TaskCardProps) {
   const router = useRouter()
-  const pathname = usePathname()
   const t = useTranslations()
-
   return (
     <Draggable draggableId={task.id} index={index}>
       {(provided, snapshot) => (
@@ -66,41 +53,24 @@ export function TaskCard({ task, index }: TaskCardProps) {
                   className="h-6 w-6"
                   onClick={(e) => {
                     e.stopPropagation()
+                    router.push(`?edit=true&id=${task.id}`)
                   }}
                   title={t("edit")}
                 >
                   <Edit className="w-3 h-3" />
                 </Button>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-6 w-6 text-red-500 hover:text-red-700"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        router.push(`?delete=true&id=${task.id}`)
-                      }}
-                      title={t("delete")}
-                    >
-                      <Trash2 className="w-3 h-3" />
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>{t("deleteTask")}</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        {t("deleteConfirm").replace("bu taskini", `"${task.title}" taskini`)}
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel onClick={() => { router.push(pathname) }}>{t("cancel")}</AlertDialogCancel>
-                      <AlertDialogAction className="bg-red-500 hover:bg-red-600">
-                        {t("delete")}
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6 text-red-500 hover:text-red-700"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    router.push(`?delete=true&id=${task.id}`)
+                  }}
+                  title={t("delete")}
+                >
+                  <Trash2 className="w-3 h-3" />
+                </Button>
               </div>
             </div>
           </CardHeader>
@@ -126,7 +96,7 @@ export function TaskCard({ task, index }: TaskCardProps) {
                 )
               })}
             </div>
-            <div className="text-xs text-gray-400 mt-2">{task.createdAt.toLocaleDateString()}</div>
+            <div className="text-xs text-gray-400 mt-2">{new Date(task.createdAt).toLocaleDateString()}</div>
           </CardContent>
         </Card>
       )}
