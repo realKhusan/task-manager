@@ -14,6 +14,7 @@ import { Plus } from "lucide-react"
 import { useRouter } from "next/navigation"
 import DeleteAlert from "@/components/task-delete-alert"
 import { useTaskStore } from "@/store/store"
+import Loading from "@/components/loading"
 
 function Page() {
   const t = useTranslations();
@@ -59,7 +60,7 @@ function Page() {
     moveTask(draggableId, destination.droppableId as TaskStatus)
   }
   if (tasks.length == 0) {
-    return "loading"
+    return <Loading />
   }
   return (
     <><div className="min-h-screen  p-4">
