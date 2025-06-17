@@ -20,7 +20,7 @@ export function KanbanColumn({ status, tasks }: KanbanColumnProps) {
   const config = statusConfig[status]
   const [isOver, setIsOver] = useState(false);
   return (
-    <div className={cn(isOver && "bg-indigo-500/20", "shadow-sm flex flex-col max-h-full rounded-4xl border  overflow-hidden")}>
+    <div className={cn(isOver && "bg-indigo-500/10", "shadow-sm flex flex-col min-h-[550px] max-h-full rounded-4xl border  overflow-hidden")}>
       <div className={`p-4 border  rounded-full ${config.bgColor}`}>
         <div className="flex items-center justify-between">
           <h3 className={`font-semibold ${config.textColor}`}>{t(status)}</h3>
@@ -53,7 +53,7 @@ export function KanbanColumn({ status, tasks }: KanbanColumnProps) {
             ))}
             {provided.placeholder}
             {tasks.length === 0 && (
-              <div className="text-center text-gray-400 py-8">
+              <div className="text-center text-gray-400 py-8 ">
                 <GripVertical className="w-8 h-8 mx-auto mb-2 opacity-50" />
                 <p className="text-sm">{t("noTasks")}</p>
                 <p className="text-xs mt-1">{t("dragHere")}</p>
