@@ -99,7 +99,7 @@ export function TaskForm() {
 
   return (
     <Dialog open={isAdd || isEdit} onOpenChange={closeDialog}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md break-words">
         <DialogHeader>
           <DialogTitle>
             {isEdit ? t("editTask") : t("addTask")}
@@ -111,13 +111,11 @@ export function TaskForm() {
             <Input id="title" {...register("title")} placeholder={t("titlePlaceholder")} />
             {errors.title && <p className="text-sm text-red-500">{errors.title.message}</p>}
           </div>
-
           <div>
             <Label htmlFor="desc">{t("description")}</Label>
-            <Textarea id="desc" {...register("desc")} placeholder={t("descriptionPlaceholder")} rows={3} />
+            <Textarea className="min-w-full break-all" id="desc" {...register("desc")} placeholder={t("descriptionPlaceholder")} rows={3} />
             {errors.desc && <p className="text-sm text-red-500">{errors.desc.message}</p>}
           </div>
-
           <div>
             <Label htmlFor="status">{t("status")}</Label>
             <Select

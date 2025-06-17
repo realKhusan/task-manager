@@ -59,43 +59,44 @@ function Page() {
     const moveTask = useTaskStore.getState().moveTask
     moveTask(draggableId, destination.droppableId as TaskStatus)
   }
-  if (tasks.length == 0) {
+  if (!tasksByStatus) {
     return <Loading />
   }
   return (
-    <><div className="min-h-screen  p-4">
-      <div className="max-w-full mx-auto">
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-5">
-            <h1 className="text-3xl font-bold ">{t("taskManager")}</h1>
-            <div className="flex gap-3">
-              <LanguageToggle />
-              <ModeToggle />
+    <>
+      <div className="!min-h-screen relative p-4">
+        <div className="max-w-full mx-auto">
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-5">
+              <h1 className="text-3xl font-bold ">{t("taskManager")}</h1>
+              <div className="flex gap-3">
+                <LanguageToggle />
+                <ModeToggle />
+              </div>
+            </div>
+            <div className="flex flex-row gap-3 items-center justify-between">
+              <SearchBar searchTerm={searchTerm} onSearchChange={setSearchTerm} />
+              <Button size={"lg"} className="rounded-full !px-3  hover:!bg-indigo-700 !bg-indigo-600 dark:text-slate-50" onClick={() => { router.push("?add=true") }}>
+                <Plus className="w-4 h-4 md:mr-2" />
+                <span className="hidden sm:block">{t("newTask")}</span>
+              </Button>
             </div>
           </div>
-          <div className="flex flex-row gap-3 items-center justify-between">
-            <SearchBar searchTerm={searchTerm} onSearchChange={setSearchTerm} />
-            <Button size={"lg"} className="rounded-full !px-3  hover:!bg-indigo-700 !bg-indigo-600 dark:text-slate-50" onClick={() => { router.push("?add=true") }}>
-              <Plus className="w-4 h-4 md:mr-2" />
-              <span className="hidden sm:block">{t("newTask")}</span>
-            </Button>
-          </div>
+          <DragDropContext onDragEnd={handleDragEnd}>
+            <div className="pb-1 overflow-x-auto">
+              <div className="grid grid-cols-4 gap-6 min-w-[1400px]">
+                {(Object.keys(tasksByStatus) as TaskStatus[]).map((status) => (
+                  <KanbanColumn
+                    key={status}
+                    status={status}
+                    tasks={tasksByStatus[status]}
+                  />
+                ))}
+              </div>
+            </div>
+          </DragDropContext>
         </div>
-        <DragDropContext onDragEnd={handleDragEnd}>
-          <div className="overflow-x-auto">
-            <div className="grid grid-cols-4 gap-6 min-w-[1200px] overflow-x-hidden">
-              {(Object.keys(tasksByStatus) as TaskStatus[]).map((status) => (
-                <KanbanColumn
-                  key={status}
-                  status={status}
-                  tasks={tasksByStatus[status]}
-                />
-              ))}
-            </div>
-          </div>
-        </DragDropContext>
       </div>
-    </div>
       <TaskForm />
       <DeleteAlert />
     </>

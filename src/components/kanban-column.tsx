@@ -7,6 +7,8 @@ import { TaskCard } from "./task-card"
 import { useTranslations } from "next-intl"
 import { Task, TaskStatus } from "@/types/task"
 import { statusConfig } from "@/constants/task-status"
+import { cn } from "@/lib/utils"
+import { useState } from "react"
 
 interface KanbanColumnProps {
   status: TaskStatus
@@ -16,28 +18,31 @@ interface KanbanColumnProps {
 export function KanbanColumn({ status, tasks }: KanbanColumnProps) {
   const t = useTranslations()
   const config = statusConfig[status]
-
+  const [isOver, setIsOver] = useState(false);
   return (
-    <div className=" shadow-sm  rounded-4xl border">
-      <div className={`p-4 border sticky bg-opacity-55  dark:backdrop-blur dark:backdrop-opacity-80 animation-duration-initial top-0 rounded-full ${config.bgColor}`}>
+    <div className={cn(isOver && "bg-indigo-500/20", "shadow-sm flex flex-col max-h-full rounded-4xl border  overflow-hidden")}>
+      <div className={`p-4 border  rounded-full ${config.bgColor}`}>
         <div className="flex items-center justify-between">
           <h3 className={`font-semibold ${config.textColor}`}>{t(status)}</h3>
           <div className="relative">
-            <Badge variant="secondary" className={`${config.color} rounded-full absolute right-0 bottom-0 blur text-white`}>
+            <Badge variant="secondary" className={cn(config.color, "rounded-full absolute !-z-10right-0 bottom-0 blur text-white")}>
               {tasks.length}
             </Badge>
-            <Badge variant="secondary" className={`${config.color} hover:!scale-105 cursor-pointer rounded-full text-white`}>
+            <Badge variant="secondary" className={cn(config.color, "!z-10 rounded-full text-white cursor-pointer ")}>
               {tasks.length}
             </Badge>
           </div>
         </div>
       </div>
       <Droppable droppableId={status}>
-        {(provided) => (
-          <div
+        {(provided, snapshot) => {
+          if (snapshot.isDraggingOver !== isOver) {
+            setIsOver(snapshot.isDraggingOver);
+          }
+          return <div
             ref={provided.innerRef}
             {...provided.droppableProps}
-            className={`p-4 min-h-[400px] transition-colors duration-200`}
+            className={cn(`p-4 flex-grow-1  transition-colors duration-200`)}
           >
             {tasks.map((task, index) => (
               <TaskCard
@@ -55,7 +60,7 @@ export function KanbanColumn({ status, tasks }: KanbanColumnProps) {
               </div>
             )}
           </div>
-        )}
+        }}
       </Droppable>
     </div>
   )

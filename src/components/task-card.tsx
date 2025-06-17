@@ -47,7 +47,7 @@ export function TaskCard({ task, index }: TaskCardProps) {
         >
           <CardHeader className="pb-2">
             <div className="flex items-start justify-between">
-              <CardTitle className="text-sm font-medium line-clamp-2 flex-1">{task.title}</CardTitle>
+              <CardTitle className="text-sm font-medium line-clamp-2 flex-1 break-all  ">{task.title}</CardTitle>
               <div className="flex items-center gap-1 ml-2">
                 <Button
                   variant="ghost"
@@ -77,7 +77,7 @@ export function TaskCard({ task, index }: TaskCardProps) {
             </div>
           </CardHeader>
           <CardContent className="pt-0">
-            {task.desc && <p className="text-xs text-gray-600 mb-3 line-clamp-3">{task.desc}</p>}
+            {task.desc && <p className="text-xs text-gray-600 mb-3 break-all line-clamp-3">{task.desc}</p>}
             <div className="flex flex-wrap gap-1">
               {Object.entries(statusConfig).map(([newStatus]) => {
                 if (newStatus === task.status) return null
